@@ -1,4 +1,4 @@
-# 🏺 🏛️Presenter
+# 🏺 Presenter
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
