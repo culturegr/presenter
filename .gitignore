@@ -1,0 +1,5 @@
+/vendor
+.phpunit.result.cache
+docker-compose.override.yml
+docker-compose.yml
+composer.lock

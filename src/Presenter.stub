@@ -1,0 +1,23 @@
+<?php
+
+namespace DummyNamespace;
+
+use CultureGr\Presenter\Presenter;
+
+class DummyClass extends Presenter
+{
+//    /**
+//     * Transform the presented model into an array.
+//     *
+//     * Implement the toArray method if the presented model needs to be
+//     * serialized into a response (like for a view or API response)
+//     *
+//     * @return array The array of attributes that should be converted to JSON when sending the response.
+//     */
+//    public function toArray()
+//    {
+//        return [
+//            //
+//        ];
+//    }
+}
