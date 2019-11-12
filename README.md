@@ -1,7 +1,9 @@
-# 🏛️ 🏛️Presenter
+# 🏺 🏛️Presenter
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
+[![Codeship Status for culturegr/presenter](https://app.codeship.com/projects/a02a7370-e759-0137-e629-7a64be8feb0e/status?branch=master)](https://app.codeship.com/projects/373758)
+
 
 This package provides an easy way to create Presenters that can be used to [decorate](https://en.wikipedia.org/wiki/Decorator_pattern) an Eloquent Model. It is heavily inspired by [Hemp Presenter](https://github.com/davidhemphill/presenter) and [Laravel API Resources](https://laravel.com/docs/6.x/eloquent-resources), however it comes with some key differences:
  - It is a *simplified* version that does not offers Traits and Macros
