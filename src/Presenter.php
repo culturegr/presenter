@@ -58,13 +58,13 @@ abstract class Presenter implements Arrayable, Jsonable
                 'next' => $paginator->nextPageUrl(),
             ],
             'meta' => [
-                'current_page' => $paginator->currentPage(),
-                'from' => $paginator->firstItem(),
-                'last_page' => $paginator->lastPage(),
+                'current_page' => (int) $paginator->currentPage(),
+                'from' => (int) $paginator->firstItem(),
+                'last_page' => (int) $paginator->lastPage(),
                 'path' => $paginator->path(),
-                'per_page' => $paginator->perPage(),
-                'to' => $paginator->lastItem(),
-                'total' => $paginator->total(),
+                'per_page' => (int) $paginator->perPage(),
+                'to' => (int) $paginator->lastItem(),
+                'total' => (int) $paginator->total(),
             ]
         ]);
     }
