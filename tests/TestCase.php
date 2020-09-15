@@ -10,6 +10,6 @@ abstract class TestCase extends Orchestra
     {
         parent::setUp();
 
-        $this->withFactories(__DIR__.'/Factories');
+        $this->withFactories(__DIR__.'/factories');
     }
 }

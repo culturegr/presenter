@@ -228,7 +228,7 @@ The output will contain the presented models wrapped in a `data` key, as long as
 ## Testing
 
 ``` bash
-$ ./vendor/bin/phpunit
+$ composer test
 ```
 
 
