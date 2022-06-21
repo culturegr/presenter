@@ -132,7 +132,7 @@ abstract class Presenter implements Arrayable, Jsonable
      */
     protected function whenLoaded(string $relationship)
     {
-        if (!$this->model->relationLoaded('period')) {
+        if (!$this->model->relationLoaded($relationship)) {
             return null;
         }
 
