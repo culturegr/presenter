@@ -1,6 +1,5 @@
 {
   "name": "culturegr/presenter",
-  "version": "1.0.4",
   "description": "Eloquent Model Presenter for Laravel applications",
   "license": "MIT",
   "authors": [
