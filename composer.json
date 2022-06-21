@@ -16,7 +16,7 @@
     "Presenter"
   ],
   "require": {
-    "illuminate/support": "^7.0|^8.0|^9.0"
+    "illuminate/support": "^8.0|^9.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.1",
