@@ -1,5 +1,6 @@
-/vendor
-/.idea
+vendor/
+.idea/
+.phpunit.cache/
 .phpunit.result.cache
 docker-compose.override.yml
 docker-compose.yml
