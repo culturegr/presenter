@@ -2,6 +2,7 @@
 <phpunit bootstrap="vendor/autoload.php"
          backupGlobals="false"
          colors="true"
+         testdox="true"
          processIsolation="false"
          stopOnFailure="false"
          displayDetailsOnTestsThatTriggerDeprecations="true">
