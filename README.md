@@ -109,7 +109,7 @@ $user = User::first();
 $presentedUser = UserPresenter::make($user);
 ```
  
-The presented model may be used anywhere in the project. If the model needs to be serialized into a response (like for a view or API response) the overwritten `toArray` method must be explicitly called,  or it can be directly returned from a route or controller: 
+The presented model may be used anywhere in the project and can be passed to views, returned from controllers, or returned from API routes. Presenters can be accessed as arrays or objects and are automatically converted to JSON when returned from routes.
 
 ```php
 <?php

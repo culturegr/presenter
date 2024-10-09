@@ -2,13 +2,16 @@
 
 namespace CultureGr\Presenter;
 
+use ArrayAccess;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Pagination\Paginator;
+use JsonSerializable;
 
-abstract class Presenter implements Arrayable, Jsonable
+
+abstract class Presenter implements Arrayable, Jsonable, JsonSerializable, ArrayAccess
 {
     protected $model;
 
@@ -18,9 +21,21 @@ abstract class Presenter implements Arrayable, Jsonable
     }
 
     /**
+     * Convert the Presenter to an array.
+     *
+     * This abstract method should be implemented by child classes to define
+     * how the Presenter object is converted to an array representation.
+     * The implementation should return an associative array containing
+     * the presented data of the model.
+     *
+     * @return array The array representation of the Presenter.
+     */
+    abstract public function toArray(): array;
+
+    /**
      * Create a new Presenter instance.
      *
-     * @param  Model  $model
+     * @param Model $model
      * @return Presenter
      */
     public static function make(Model $model): Presenter
@@ -31,7 +46,7 @@ abstract class Presenter implements Arrayable, Jsonable
     /**
      * Create a collection of presented models.
      *
-     * @param  Collection  $models
+     * @param Collection $models
      * @return Collection
      */
     public static function collection(Collection $models): Collection
@@ -44,7 +59,7 @@ abstract class Presenter implements Arrayable, Jsonable
     /**
      * Create a collection of paginated presented models.
      *
-     * @param  Paginator  $paginator
+     * @param Paginator $paginator
      * @return Collection
      */
     public static function pagination(Paginator $paginator): Collection
@@ -52,19 +67,19 @@ abstract class Presenter implements Arrayable, Jsonable
         return collect([
             'data' => static::collection(collect($paginator->items())),
             'links' => [
-                'first' => $paginator->path().'?page=1',
-                'last' => $paginator->path().'?page='.$paginator->lastPage(),
+                'first' => $paginator->path() . '?page=1',
+                'last' => $paginator->path() . '?page=' . $paginator->lastPage(),
                 'prev' => $paginator->previousPageUrl(),
                 'next' => $paginator->nextPageUrl(),
             ],
             'meta' => [
-                'current_page' => (int) $paginator->currentPage(),
-                'from' => (int) $paginator->firstItem(),
-                'last_page' => (int) $paginator->lastPage(),
+                'current_page' => (int)$paginator->currentPage(),
+                'from' => (int)$paginator->firstItem(),
+                'last_page' => (int)$paginator->lastPage(),
                 'path' => $paginator->path(),
-                'per_page' => (int) $paginator->perPage(),
-                'to' => (int) $paginator->lastItem(),
-                'total' => (int) $paginator->total(),
+                'per_page' => (int)$paginator->perPage(),
+                'to' => (int)$paginator->lastItem(),
+                'total' => (int)$paginator->total(),
             ]
         ]);
     }
@@ -72,7 +87,7 @@ abstract class Presenter implements Arrayable, Jsonable
     /**
      * Property overloading.
      *
-     * @param  string  $name
+     * @param string $name
      * @return mixed
      */
     public function __get($name)
@@ -83,24 +98,14 @@ abstract class Presenter implements Arrayable, Jsonable
     /**
      * Method overloading.
      *
-     * @param  string  $method
-     * @param  array  $args
+     * @param string $method
+     * @param array $args
      *
      * @return mixed
      */
     public function __call($method, $args)
     {
         return call_user_func_array([$this->model, $method], $args);
-    }
-
-    /**
-     * Convert the Presenter to an array.
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->model->toArray();
     }
 
     /**
@@ -116,7 +121,7 @@ abstract class Presenter implements Arrayable, Jsonable
     /**
      * Convert the Presenter to a JSON string.
      *
-     * @param  int  $options
+     * @param int $options
      * @return string
      */
     public function toJson($options = 0)
@@ -125,12 +130,69 @@ abstract class Presenter implements Arrayable, Jsonable
     }
 
     /**
+     * Determine if an offset exists in the Presenter.
+     *
+     * This method is part of the ArrayAccess interface implementation.
+     * It checks if the given offset exists in the array representation of the Presenter.
+     *
+     * @param mixed $offset The offset to check for existence.
+     * @return bool True if the offset exists, false otherwise.
+     */
+    public function offsetExists($offset): bool
+    {
+        return isset($this->toArray()[$offset]);
+    }
+
+    /**
+     * Get the value at a given offset in the Presenter.
+     *
+     * This method is part of the ArrayAccess interface implementation.
+     * It retrieves the value associated with the given offset from the array representation of the Presenter.
+     *
+     * @param mixed $offset The offset to retrieve.
+     * @return mixed The value at the specified offset.
+     * @throws \Exception If the offset does not exist.
+     */
+    public function offsetGet($offset): mixed
+    {
+        if ($this->offsetExists($offset)) {
+            return $this->toArray()[$offset];
+        }
+
+        throw new \Exception("Undefined offset: $offset");
+    }
+
+    public function offsetSet($offset, $value): void
+    {
+        // Presenters are typically read-only, so this can be left empty or throw an exception
+    }
+
+    public function offsetUnset($offset): void
+    {
+        // Presenters are typically read-only, so this can be left empty or throw an exception
+    }
+
+    /**
+     * Specify data which should be serialized to JSON.
+     *
+     * This method is part of the JsonSerializable interface implementation.
+     * It returns the array representation of the Presenter, which will be
+     * used when encoding the object to JSON.
+     *
+     * @return array The array to be serialized to JSON.
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
+
+    /**
      * Check if a relationship has been eager-loaded.
      *
-     * @param  string  $relationship
+     * @param string $relationship
      * @return mixed|null
      */
-    protected function whenLoaded(string $relationship)
+    public function whenLoaded(string $relationship)
     {
         if (!$this->model->relationLoaded($relationship)) {
             return null;

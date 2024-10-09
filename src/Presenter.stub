@@ -6,18 +6,28 @@ use CultureGr\Presenter\Presenter;
 
 class DummyClass extends Presenter
 {
-//    /**
-//     * Transform the presented model into an array.
-//     *
-//     * Implement the toArray method if the presented model needs to be
-//     * serialized into a response (like for a view or API response)
-//     *
-//     * @return array The array of attributes that should be converted to JSON when sending the response.
-//     */
-//    public function toArray()
+    /**
+     * Transform the presented model into an array.
+     *
+     * This method should be implemented when the presented model needs to be
+     * serialized into a response, such as for a view or API response.
+     *
+     * @return array An associative array representation of the model's attributes.
+     *               This array will be automatically converted to JSON when sending the response.
+     *
+     * @example
+     * public function toArray(): array
+     * {
+     *     return [
+     *         'id' => $this->model->id,
+     *         'name' => $this->model->name,
+     *         'email' => $this->model->email,
+     *         'created_at' => $this->model->created_at->toIso8601String(),
+     *     ];
+     * }
+     */
+//    public function toArray(): array
 //    {
-//        return [
-//            //
-//        ];
+//        return $this->model->toArray();
 //    }
 }

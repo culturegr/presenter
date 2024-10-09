@@ -6,6 +6,8 @@ use CultureGr\Presenter\Presenter;
 use CultureGr\Presenter\Tests\Fixtures\User;
 use CultureGr\Presenter\Tests\Fixtures\Paginator;
 use CultureGr\Presenter\Tests\Fixtures\UserPresenter;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class PresenterTest extends TestCase
 {
@@ -13,10 +15,7 @@ class PresenterTest extends TestCase
     public function it_can_be_instantiated()
     {
         $user = factory(User::class)->make();
-
-        $presenter = new class($user) extends Presenter
-        {
-        };
+        $presenter = $this->createPresenter($user);
 
         $this->assertInstanceOf(Presenter::class, $presenter);
 
@@ -26,10 +25,7 @@ class PresenterTest extends TestCase
     public function it_proxies_the_original_model_attributes()
     {
         $user = factory(User::class)->make();
-
-        $presenter = new class($user) extends Presenter
-        {
-        };
+        $presenter = $this->createPresenter($user);
 
         $this->assertSame($user->firstname, $presenter->firstname);
         $this->assertSame($user->lastname, $presenter->lastname);
@@ -40,10 +36,7 @@ class PresenterTest extends TestCase
     public function it_proxies_the_original_model_methods()
     {
         $user = factory(User::class)->make();
-
-        $presenter = new class($user) extends Presenter
-        {
-        };
+        $presenter = $this->createPresenter($user);
 
         $this->assertSame($user->fullname(), $presenter->fullname());
     }
@@ -52,10 +45,7 @@ class PresenterTest extends TestCase
     public function it_wraps_the_original_model()
     {
         $user = factory(User::class)->make();
-
-        $presenter = new class($user) extends Presenter
-        {
-        };
+        $presenter = $this->createPresenter($user);
 
         $this->assertSame($user, $presenter->getModel());
     }
@@ -88,13 +78,65 @@ class PresenterTest extends TestCase
     }
 
     /** @test */
+    public function it_automatically_converts_to_array_when_needed()
+    {
+        $user = factory(User::class)->make();
+
+        $presenter = new class($user) extends Presenter
+        {
+            public function toArray(): array
+            {
+                return [
+                    'fullname' => $this->fullname(),
+                    'email' => $this->email,
+                ];
+            }
+        };
+
+        // Access the presenter as an array
+        $presenterFullname = $presenter['fullname'];
+        $presenterEmail = $presenter['email'];
+
+        $this->assertEquals($user->fullname(), $presenterFullname);
+        $this->assertEquals($user->email, $presenterEmail);
+    }
+
+    /** @test */
+    public function it_automatically_converts_to_json_when_needed()
+    {
+        $user = factory(User::class)->make([
+            'firstname' => 'John',
+            'lastname' => 'Doe',
+            'email' => 'john@example.com'
+        ]);
+
+        $presenter = new class($user) extends Presenter
+        {
+            public function toArray(): array
+            {
+                return [
+                    'fullname' => $this->fullname(),
+                    'email' => $this->email,
+                ];
+            }
+        };
+
+        $jsonPresentation = json_encode($presenter);
+
+        $this->assertJsonStringEqualsJsonString(
+            '{"fullname":"John Doe","email":"john@example.com"}',
+            $jsonPresentation
+        );
+    }
+
+    /** @test */
     public function a_presented_model_can_define_the_array_of_attributes_that_can_be_serialized()
     {
         $user = factory(User::class)->make();
 
         $presenter = new class($user) extends Presenter
         {
-            public function toArray()
+            public function toArray(): array
             {
                 return [
                     'fullname' => $this->fullname(),
@@ -123,7 +165,7 @@ class PresenterTest extends TestCase
 
         $presentedUsers = UserPresenter::collection($users);
 
-        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $presentedUsers);
+        $this->assertInstanceOf(Collection::class, $presentedUsers);
         $this->assertInstanceOf(UserPresenter::class, $presentedUsers->first());
     }
 
@@ -145,7 +187,7 @@ class PresenterTest extends TestCase
         // TODO: Make a UserCollectionPresenter fixture
         $presentedUsers = (new class($users->first()) extends Presenter
         {
-            public function toArray()
+            public function toArray(): array
             {
                 return [
                     'fullname' => $this->fullname(),
@@ -175,7 +217,7 @@ class PresenterTest extends TestCase
 
         $presentedUsers = UserPresenter::pagination($paginator);
 
-        $this->assertInstanceOf(\Illuminate\Support\Collection::class, $presentedUsers);
+        $this->assertInstanceOf(Collection::class, $presentedUsers);
         $this->assertInstanceOf(UserPresenter::class, $presentedUsers['data']->first());
     }
 
@@ -199,7 +241,7 @@ class PresenterTest extends TestCase
         // TODO: Make a UserCollectionPresenter fixture
         $presentedUsers = (new class($users->first()) extends Presenter
         {
-            public function toArray()
+            public function toArray(): array
             {
                 return [
                     'fullname' => $this->fullname(),
@@ -220,9 +262,7 @@ class PresenterTest extends TestCase
         $users = factory(User::class, 3)->make();
         $paginator = (new Paginator)($users);
 
-        $presentedUsers = (new class($users->first()) extends Presenter
-        {
-        })::pagination($paginator);
+        $presentedUsers = ($this->createPresenter($users->first()))::pagination($paginator);
 
         $this->assertSame([
             "first" => "http://example.com/pagination?page=1",
@@ -238,9 +278,7 @@ class PresenterTest extends TestCase
         $users = factory(User::class, 3)->make();
         $paginator = (new Paginator)($users);
 
-        $presentedUsers = (new class($users->first()) extends Presenter
-        {
-        })::pagination($paginator);
+        $presentedUsers = ($this->createPresenter($users->first()))::pagination($paginator);
 
         $this->assertSame([
             'current_page' => 1,
@@ -251,5 +289,16 @@ class PresenterTest extends TestCase
             'to' => 10,
             'total' => 10
         ], $presentedUsers->toArray()['meta']);
+    }
+
+    private function createPresenter(Model $model): Presenter
+    {
+        return new class($model) extends Presenter
+        {
+            public function toArray(): array
+            {
+                return $this->model->toArray();
+            }
+        };
     }
 }
