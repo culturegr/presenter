@@ -10,4 +10,9 @@ class PresenterServiceProvider extends ServiceProvider
     {
         $this->commands([MakePresenterCommand::class]);
     }
+
+    public function boot()
+    {
+        CollectionMacros::register();
+    }
 }
