@@ -59,6 +59,10 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable, Array
     /**
      * Create a collection of paginated presented models.
      *
+     * This method creates a structured collection containing the presented models
+     * along with pagination metadata. It properly preserves any query parameters
+     * that have been appended to the paginator using the appends() method.
+     *
      * @param Paginator $paginator
      * @return Collection
      */
@@ -67,8 +71,8 @@ abstract class Presenter implements Arrayable, Jsonable, JsonSerializable, Array
         return collect([
             'data' => static::collection(collect($paginator->items())),
             'links' => [
-                'first' => $paginator->path() . '?page=1',
-                'last' => $paginator->path() . '?page=' . $paginator->lastPage(),
+                'first' => $paginator->url(1),
+                'last' => $paginator->url($paginator->lastPage()),
                 'prev' => $paginator->previousPageUrl(),
                 'next' => $paginator->nextPageUrl(),
             ],

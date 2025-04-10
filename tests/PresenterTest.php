@@ -291,6 +291,48 @@ class PresenterTest extends TestCase
         ], $presentedUsers->toArray()['meta']);
     }
 
+    /** @test */
+    public function it_preserves_appended_parameters_in_pagination_links()
+    {
+        $users = factory(User::class, 3)->make();
+        $paginator = (new Paginator)($users);
+
+        // Append parameters to the paginator
+        $paginatorWithAppends = $paginator->appends(['foo' => 'bar']);
+
+        // Present the paginator
+        $presentedUsers = UserPresenter::pagination($paginatorWithAppends);
+
+        // Get the links array
+        $links = $presentedUsers->toArray()['links'];
+
+        // Verify that all links include the appended parameters
+        $this->assertStringContainsString('foo=bar', $links['first']);
+        $this->assertStringContainsString('foo=bar', $links['last']);
+        $this->assertStringContainsString('foo=bar', $links['next']);
+    }
+
+    /** @test */
+    public function it_preserves_query_string_parameters_in_pagination_links()
+    {
+        $users = factory(User::class, 3)->make();
+        $paginator = (new Paginator)($users);
+
+        // Use withQueryString to add query parameters
+        $paginatorWithQueryString = $paginator->withQueryString();
+
+        // Present the paginator
+        $presentedUsers = UserPresenter::pagination($paginatorWithQueryString);
+
+        // Get the links array
+        $links = $presentedUsers->toArray()['links'];
+
+        // Verify that all links include the query string parameters
+        $this->assertStringContainsString('query=test', $links['first']);
+        $this->assertStringContainsString('query=test', $links['last']);
+        $this->assertStringContainsString('query=test', $links['next']);
+    }
+
     private function createPresenter(Model $model): Presenter
     {
         return new class($model) extends Presenter
