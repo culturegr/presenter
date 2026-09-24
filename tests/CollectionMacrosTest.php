@@ -53,6 +53,7 @@ class CollectionMacrosTest extends TestCase
             public function previousPageUrl() { return null; }
             public function appends($key, $value = null) { return $this; }
             public function fragment($fragment = null) { return $this; }
+            public function withQueryString() { return $this; }
             public function render($view = null, $data = []) { return ''; }
             public function isEmpty() { return empty($this->items); }
             public function isNotEmpty() { return !$this->isEmpty(); }
